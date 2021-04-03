@@ -13,7 +13,6 @@ public class EditPlant extends AppCompatActivity {
 
     EditText edtTitle;
     EditText edtDescription;
-
     Button btnCancel, btnSave;
 
 
