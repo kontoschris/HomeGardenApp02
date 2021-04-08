@@ -15,7 +15,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String sqlQuery = "CREATE TABLE Plant (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT)";
+        String sqlQuery = "CREATE TABLE Plant (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT, temperature INT, humidity INT, img BLOB)";
         db.execSQL(sqlQuery);
     }
 

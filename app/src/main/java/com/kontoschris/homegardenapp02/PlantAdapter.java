@@ -2,6 +2,7 @@ package com.kontoschris.homegardenapp02;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +43,11 @@ public class PlantAdapter extends RecyclerView.Adapter<PlantAdapter.PlantHolder>
     public void onBindViewHolder(@NonNull PlantHolder holder, int position) {
         holder.title.setText(plants.get(position).getTitle());
         holder.description.setText(plants.get(position).getDescription());
+        byte image[] = plants.get(position).getImage();
+
+        //BitmapFactory.decodeByteArray(image, 0, image.length);
+        holder.imgPlant.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));
+        //holder.imgEdit.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));
 
     }
 
@@ -55,12 +61,14 @@ public class PlantAdapter extends RecyclerView.Adapter<PlantAdapter.PlantHolder>
         TextView title;
         TextView description;
         ImageView imgEdit;
+        ImageView imgPlant;
         public PlantHolder(@NonNull View itemView) {
             super(itemView);
 
             title = itemView.findViewById(R.id.txt_plant_name);
             description = itemView.findViewById(R.id.txt_plant_description);
             imgEdit = itemView.findViewById(R.id.img_edit);
+            imgPlant = itemView.findViewById(R.id.imgPlant);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

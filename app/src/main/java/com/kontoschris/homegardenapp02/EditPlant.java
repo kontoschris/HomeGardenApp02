@@ -3,18 +3,26 @@ package com.kontoschris.homegardenapp02;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+
 public class EditPlant extends AppCompatActivity {
 
     EditText edtTitle;
     EditText edtDescription;
     Button btnCancel, btnSave;
-
+    Drawable drawable;
+    Bitmap bitmap1, bitmap2;
+    byte[] image;
+    ByteArrayOutputStream bytearrayoutputstream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +56,14 @@ public class EditPlant extends AppCompatActivity {
                 int nIDfromIntent = intent.getIntExtra("id", 1);
 //                String sTitle = edtTitle.getText().toString();
 //                String sTitle = edtTitle.getText().toString();
-                Plant plant = new Plant(sTitle, sDescription);
+
+                drawable = getResources().getDrawable(R.drawable.defaultplant);
+                bitmap1 = ((BitmapDrawable)drawable).getBitmap();
+                bytearrayoutputstream = new ByteArrayOutputStream();
+                bitmap1.compress(Bitmap.CompressFormat.JPEG,70,bytearrayoutputstream);
+
+                image = bytearrayoutputstream.toByteArray();
+                Plant plant = new Plant(sTitle, sDescription,1,1,image);
                 plant.setId(nIDfromIntent);
                 if (new PlantHandler(EditPlant.this).update(plant)){
                     Toast.makeText(EditPlant.this, "Plant data updated", Toast.LENGTH_SHORT).show();
