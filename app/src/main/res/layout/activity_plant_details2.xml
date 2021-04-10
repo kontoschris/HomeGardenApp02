@@ -103,26 +103,27 @@
                 android:background="#FFCCCC"
                 android:hint="Edit plant name here"
                 android:inputType="text"
-                android:padding="10dp"
+                android:padding="2dp"
                 android:textColor="@color/black"></EditText>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:layout_marginTop="10dp"
+                android:padding="5dp"
                 android:text="Description:"
                 android:textColor="@color/black"></TextView>
 
             <EditText
                 android:id="@+id/edtDescription"
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
+                android:layout_height="50dp"
                 android:background="#FFCCCC"
                 android:ems="10"
                 android:hint="Edit plant description and details"
                 android:inputType="text"
-                android:padding="10dp"
-                android:singleLine="false"
+                android:padding="5dp"
+                android:singleLine="true"
                 android:textColor="@color/black" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -200,7 +201,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:padding="10dp">
+            android:padding="5dp">
 
 
             <Button

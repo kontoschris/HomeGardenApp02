@@ -16,8 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HomeGardenApp02">
         <activity android:name=".PlantDetails2"></activity>
-        <activity android:name=".PlantDetails" />
-        <activity android:name=".MainActivity2" />
         <activity android:name=".MainActivity" />
         <activity android:name=".EditPlant" />
         <activity android:name=".LoginActivity">

@@ -12,7 +12,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewTop"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_height="220dp"
         android:layout_marginTop="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,7 +30,7 @@
                 android:layout_marginTop="4dp"
                 android:text="Chris Kontos - SDY61 - ERG4"
                 android:textAlignment="center"
-                android:textSize="18dp"
+                android:textSize="16dp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/tvAppTitle1"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -39,24 +39,23 @@
 
             </TextView>
 
+
             <TextView
                 android:id="@+id/tvAppTitle1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingBottom="5dp"
+                android:paddingBottom="0dp"
                 android:text="Home Garden App"
                 android:textAlignment="center"
                 android:textColor="#000000"
-                android:textSize="36sp"
+                android:textSize="28dp"
                 android:textStyle="bold"
                 android:typeface="normal"
-                android:layout_marginBottom="5dp"
-                app:layout_constraintBottom_toTopOf="@+id/lin-top-buttons"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtTitleSmall" />
-
 
             <LinearLayout
                 android:id="@+id/lin-top-buttons1"
@@ -64,7 +63,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
-                android:gravity="center"
+                android:layout_marginTop="1dp"
+                android:gravity="left"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -74,18 +74,24 @@
                 app:layout_constraintVertical_bias="0.0">
 
                 <Button
-                    android:id="@+id/bt_getGPS"
+                    android:id="@+id/btGetGPS"
                     android:layout_width="wrap_content"
-                    android:layout_height="50dp"
+                    android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
-                    android:text="Get GPS location"></Button>
+                    android:text="Get GPS"></Button>
 
-                <Button
-                    android:id="@+id/bt_getWeather"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
+                <TextView
+                    android:id="@+id/txtGPSdata"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
-                    android:text="Get Weather"></Button>
+                    android:padding="5dp"
+                    android:text="Get GPS location"
+                    android:textAllCaps="true"
+                    android:textColor="#002AFF"
+                    android:textSize="16dp"
+                    android:textStyle="bold"></TextView>
+
             </LinearLayout>
 
             <LinearLayout
@@ -94,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
-                android:gravity="center"
+                android:gravity="left"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -104,20 +110,60 @@
                 app:layout_constraintVertical_bias="0.0">
 
                 <TextView
-                    android:id="@+id/txt_Gps"
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:layout_margin="5dp"
-                    android:text="Get GPS location"
-                    android:textSize="18dp"></TextView>
+                    android:layout_height="match_parent"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="5dp"
+                    android:text="Choose City >>"
+                    android:textColor="@color/blue"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/edtCity"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:background="@color/field"
+                    android:paddingBottom="3dp"
+                    android:text="Maroussi"
+                    android:textAlignment="center"
+                    android:textColor="#002AFF"
+                    android:textSize="18dp"
+                    android:tooltipText="Write here your city (default is athens)" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lin-top-buttons3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:gravity="left"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/lin-top-buttons2"
+                app:layout_constraintVertical_bias="0.272">
+
+
+                <Button
+                    android:id="@+id/btGetWeather"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="5dp"
+                    android:text="Get Weather"></Button>
 
                 <TextView
-                    android:id="@+id/txt_Weather"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
+                    android:id="@+id/txtWeather"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_margin="5dp"
                     android:text="Get Weather"
-                    android:textSize="18dp"></TextView>
+                    android:textColor="#002AFF"
+                    android:textSize="16dp"
+                    android:textStyle="bold"></TextView>
             </LinearLayout>
 
 
@@ -130,12 +176,12 @@
         android:id="@+id/recyclerOfPlants"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewTop" />
+        app:layout_constraintTop_toBottomOf="@+id/cardViewTop"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageButton
         android:id="@+id/img_Add"
