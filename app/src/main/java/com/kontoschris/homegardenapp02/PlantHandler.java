@@ -1,3 +1,5 @@
+//Η βασική κλάσση που διαχειρίζεται το Plant object όσο αφορά τις λειτοτργίες με την Βαση δεδομένων
+//Λειτουργίες CRUD
 package com.kontoschris.homegardenapp02;
 
 import android.content.ContentValues;
@@ -18,15 +20,20 @@ public class PlantHandler extends DatabaseHelper {
     }
 
     public boolean create(Plant plant){
+        //ετοιμάζουμε και πέρνουμε τις τιμές για αποήκευση και τοις βάζουμε στο Values Object
         ContentValues values = new ContentValues();
         values.put("title", plant.getTitle());
         values.put("description", plant.getDescription());
+        values.put("temperature", plant.getTemperature());
+        values.put("humidity", plant.getHumidity());
         values.put("img", plant.getImage());
-        SQLiteDatabase db = this.getReadableDatabase();
+
+        SQLiteDatabase db = this.getReadableDatabase(); //πέρνουμε το αντικείμενο της SQL lite
 
         boolean isSuccessfull;
         long nRet;
-        nRet = db.insert("Plant", null, values);
+
+        nRet = db.insert("Plant", null, values); //εισαγωγή στην βάση του Plant Object
         if (nRet >0) {
             isSuccessfull = true;
         } else {
@@ -36,6 +43,7 @@ public class PlantHandler extends DatabaseHelper {
         return isSuccessfull;
     }
 
+    //Λειτουργία RETRIEVE  - Retrieve Plant Objects σε ARRAY
     public ArrayList<Plant> readPlants(){
         ArrayList<Plant> plants = new ArrayList<>();
         String sqlQuery = "SELECT * FROM Plant ORDER BY id ASC";
@@ -45,7 +53,7 @@ public class PlantHandler extends DatabaseHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                
+                //διαβάζουμε τα δεδομένα του κάθε πεδίου του πίνακα Plants
                 int id = Integer.parseInt(cursor.getString(cursor.getColumnIndex("id")));
                 String title = cursor.getString(cursor.getColumnIndex("title"));
                 String description = cursor.getString(cursor.getColumnIndex("description"));
@@ -53,18 +61,13 @@ public class PlantHandler extends DatabaseHelper {
                 int humidity = cursor.getInt(cursor.getColumnIndex("humidity"));
                 byte[] image = cursor.getBlob(cursor.getColumnIndex("img"));
 
-//                byte image[];
-//                Bitmap bitmap = null;
-//                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//                bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-//                image = outputStream.toByteArray();
-
-
-                Plant plant = new Plant(title, description,1 ,1, image);
+                //για κάθε εγγραφή του πίνακα δημιουργούμε ένα αντικείμενο Plant
+                Plant plant = new Plant(title, description,temperature ,humidity, image);
                 plant.setId(id);
                 plants.add(plant);
-            }while (cursor.moveToNext());
+            }while (cursor.moveToNext()); //στην επόμενη εγγραφή
 
+            //τα κλείνουμε...
             cursor.close();
             db.close();
 
@@ -72,6 +75,7 @@ public class PlantHandler extends DatabaseHelper {
         return plants;
     }
 
+    //Λειτουργία RETRIEVE - φορτώμνουμε απο την SQL lite ένα συγκεκριμένο plant Βαση του ID του
     public Plant readOnePlant(int id) {
         Plant plant = null;
         String sqlQuery = "SELECT * FROM Plant WHERE id=" + id;
@@ -82,13 +86,9 @@ public class PlantHandler extends DatabaseHelper {
             int plantid = Integer.parseInt(cursor.getString(cursor.getColumnIndex("id")));
             String title = cursor.getString(cursor.getColumnIndex("title"));
             String description = cursor.getString(cursor.getColumnIndex("description"));
-
-
-//            byte image[];
-//            Bitmap bitmap = null;
-//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//            bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-//            image = outputStream.toByteArray();
+            int temperature = cursor.getInt(cursor.getColumnIndex("temperature"));
+            int humidity = cursor.getInt(cursor.getColumnIndex("humidity"));
+            byte[] image = cursor.getBlob(cursor.getColumnIndex("img"));
 
             plant = new Plant(title, description,1,1,null);
             plant.setId(plantid);
@@ -99,12 +99,15 @@ public class PlantHandler extends DatabaseHelper {
         return plant;
     }
 
+    //Λειτουργία UPDATE του Plant... (δεν υλοποιήθηκε στο GUI όμως)....???
     public boolean update(Plant plant){
         long nRet;
         boolean isSuccess;
         ContentValues values = new ContentValues();
         values.put("title", plant.getTitle());
         values.put("description", plant.getDescription());
+        values.put("temperature", plant.getTemperature());
+        values.put("humidity", plant.getHumidity());
 
         SQLiteDatabase db = this.getWritableDatabase();
         nRet = db.update("Plant", values,"id='"+plant.getId()+"'", null );
@@ -117,6 +120,7 @@ public class PlantHandler extends DatabaseHelper {
         return isSuccess;
     }
 
+    //λειτουργία DELETE plant
     public boolean delete(int id){
         boolean isDeleted;
         long nRet;

@@ -1,3 +1,5 @@
+//Κλάσση για την δημιουργία ή διαγραφή της βάσης
+//Γίνεται χρήση της SQL lite του κινητού
 package com.kontoschris.homegardenapp02;
 
 import android.content.Context;
@@ -13,13 +15,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    @Override
+    @Override //δημιουργία του πίνακα
     public void onCreate(SQLiteDatabase db) {
-        String sqlQuery = "CREATE TABLE Plant (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT, temperature INT, humidity INT, img BLOB)";
+        String sqlQuery = "CREATE TABLE Plant (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, " +
+                "description TEXT, temperature INT, humidity INT, img BLOB)";
         db.execSQL(sqlQuery);
     }
 
-    @Override
+    @Override //αν κάνουμε κάποια αλλαγη στον πίνακα τότε τον διαγράφουμε πρώτα πριν γινει πάλει create
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         String sqlQuery = "DROP TABLE IF EXISTS Plant";
         db.execSQL(sqlQuery);

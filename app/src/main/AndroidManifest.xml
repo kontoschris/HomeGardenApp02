@@ -2,10 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kontoschris.homegardenapp02">
 
-    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    //Δήλωση Permissions
+    <uses-permission android:name="android.permission.CAMERA"></uses-permission> //Camera Permissions
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> // foreground location - Fine location (AGPS)
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> //foreground location GPS
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> //background location access
+    <uses-permission android:name="android.permission.INTERNET" /> // internet access (για the weather api)
 
 
     <application
@@ -17,7 +19,7 @@
         android:theme="@style/Theme.HomeGardenApp02">
         <activity android:name=".PlantDetails2"></activity>
         <activity android:name=".MainActivity" />
-        <activity android:name=".EditPlant" />
+<!--        <activity android:name=".EditPlant" />-->
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

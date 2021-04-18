@@ -1,3 +1,6 @@
+//MainActivity --> activity_main.xml
+//Κωδικας κύριας οθόνης της εφαρμογής
+
 package com.kontoschris.homegardenapp02;
 
 import androidx.annotation.NonNull;
@@ -35,20 +38,36 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class MainActivity extends AppCompatActivity {
-    TextView tvLatAndLon; //text view for GPS Data
+    TextView tvLatAndLon; //text view GPS Data
+    private TextView tvWeather;
+    private EditText edtCity;
     ImageButton imgbtAdd; //add button
-    ImageButton imgbtOptinons; //button options
+    ImageButton imgbtRefresh; //add button
     Button btGetGPS;
     Button btGetweather;
-    ArrayList<Plant> plants; //array with plants
+    ArrayList<Plant> plants; //array με plants
     RecyclerView recyclerView; //Recycler με λιστα φυτων
     PlantAdapter plantAdapter; //Adapter (διαχειριστής) Φυτών
 
-    // initializing FusedLocationProviderClient object
+    //θερμογρασία και υγρασία τρέχουσας πόλης
+    int globalTemperature;
+    int globalHumidity;
+
+
+    // initializing FusedLocationProviderClient object (για την αναζήτη της θέσης με χρήση δικτύου και GPS
     // https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient
     FusedLocationProviderClient mFusedLocationClient;
     int PERMISSION_ID = 44; //GPS permissions
+
+    //Object κληση στο OpenWeather API
+    WeatherAPIcall weatherAPIcall;
 
     // Create tou Activity //////////////////////////////////////////////////////////////////////////
     @Override
@@ -56,11 +75,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tvLatAndLon = findViewById(R.id.txtGPSdata);
-        btGetGPS = findViewById(R.id.btGetGPS);
 
-        //check GPS perms kai get GPS Data
+        //πέρνουμε και συδέουμε τα αντικείμενα του GUI
+        tvLatAndLon = findViewById(R.id.txtGPSdata);
+        tvWeather = findViewById(R.id.txtWeather);
+        btGetGPS = findViewById(R.id.btGetGPS);
+        btGetweather = findViewById(R.id.btGetWeather);
+        edtCity = findViewById(R.id.edtCity);
+
+        //check GPS permsisions  kai get GPS Data
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+
+
+        //Φτιάχνω RetroFit url το οποίο θα κάνει το http CALL στο OpenWeather
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(WeatherServerInfo.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        //και δημιουργουμε το αντικείμενο του CALL
+        weatherAPIcall = retrofit.create(WeatherAPIcall.class);
+
 
 
         //Button for getting gps (manual from the UI) ----------------------------------------------
@@ -74,108 +108,173 @@ public class MainActivity extends AppCompatActivity {
         });//---------------------------------------------------------------------------------------
 
 
+        //Get Weather button code ------------------------------------------------------------------
+        btGetweather.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String sCity;
+                sCity = edtCity.getText().toString();
+                Toast.makeText(MainActivity.this, "Getting Weather Data for City: " + sCity, Toast.LENGTH_SHORT).show();
+                getWeather(sCity); //συνάρτηση που βρίσκει τον καιρό
+
+            }
+        }); //--------------------------------------------------------------------------------------
+
+
         //get Button ADD
         imgbtAdd = findViewById(R.id.img_Add);
 
-        //Add click coding -------------------------------------------------------------------------
+        //κώδικας για προσθήκη φυτού .... Add Plant click coding -----------------------------------
         imgbtAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LayoutInflater inflater = (LayoutInflater)
                                 MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View viewInput = inflater.inflate(R.layout.plant_input, null, false);
 
-                EditText edtTitle = viewInput.findViewById(R.id.edf_Title);
-                EditText edtDescription = viewInput.findViewById(R.id.edf_Description);
-
-                Toast.makeText(MainActivity.this, "Clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Starting ADD new plant screen", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MainActivity.this, PlantDetails2.class);
 
+                //περναω στην φόρμα τις τρέχουσες τιμές θερμοκρασίας και υγρασίας
+                intent.putExtra("globaltemp", globalTemperature);
+                intent.putExtra("globalhum", globalHumidity);
+
+                //ξεκινάω την φόρμα PlantDetails2 gia tin prosthiki toy plant
                 startActivityForResult(intent, 1);
             }
         });//---------------------------------------------------------------------------------------
 
 
-        //Recycler for Plants https://developer.android.com/guide/topics/ui/layout/recyclerview?gclid=CjwKCAjw07qDBhBxEiwA6pPbHuTgu3RaY5T6L6RpDWeTteq8f_23Hm7d_Kg2inIk7lbu-PaNkVezHBoCVfcQAvD_BwE&gclsrc=aw.ds
+
+        //get Button Refresh
+        imgbtRefresh = findViewById(R.id.img_Refresh);
+
+        //κώδικας για το refresh της λίστας των φυτών -------- -----------------------------------
+        imgbtRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater inflater = (LayoutInflater)
+                        MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+
+                //αν δεν έχουμε πατήσει πρώτα το κουμπί του καιρού τότε ενημέρωσε χρήστη
+                if (globalTemperature > 0) {
+                    Toast.makeText(MainActivity.this, "Checking which plants need water", Toast.LENGTH_SHORT).show();
+                    loadPlants(); //φόρτωσε την λίστα με τα φυτα....
+                } else {
+                    Toast.makeText(MainActivity.this, "You have to press button <GET WEATHER> first!", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });//---------------------------------------------------------------------------------------
+
+
+        //Εδώ ορίζουμε τον RecyclerView Που περιέχει τα Plants
+        //Recycler για τα Plants https://developer.android.com/guide/topics/ui/layout/recyclerview?gclid=CjwKCAjw07qDBhBxEiwA6pPbHuTgu3RaY5T6L6RpDWeTteq8f_23Hm7d_Kg2inIk7lbu-PaNkVezHBoCVfcQAvD_BwE&gclsrc=aw.ds
         recyclerView = findViewById(R.id.recyclerOfPlants);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
 
         //Code for Swipe & Move tou Recycler
         ItemTouchHelper.SimpleCallback itemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT ) {
-            //Move
+            //Το Move δεν υλοποιήθηκε
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
 
-            //Swipe
+            //αν το κάνουμε Swipe δεξια ή αριστερά τότε διαγράφει το Plant
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int plantId = plants.get(viewHolder.getAdapterPosition()).getId();
                 new PlantHandler(MainActivity.this).delete(plantId);
-                //remove from array
+                //διαγραφή από το Arrat
                 plants.remove(viewHolder.getAdapterPosition());
-                //notify for the removal
+                //ενημέρωση το Plant Adapter οτι διαγράφηκε
                 plantAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
             }
         };
 
-        //Initialize touch helper & Attach to the recycler
+        //Initialize touch helper & προσθήκη στο recycler
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchCallBack);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
-        loadPlants();//Everty time load (refresh) plants
+        loadPlants();//κάθε φόρα που φορτώνει το recycler --> refresh plants
     }
 
 
+    //ΔΗμιουργία Array Με Plants κατά το φόρτωμά τους
     public ArrayList<Plant> readPlants (){//////////////////////////////////////////////////////////
         ArrayList<Plant> plants = new PlantHandler(this).readPlants();
+        Toast.makeText(MainActivity.this, "Loading Plants", Toast.LENGTH_SHORT).show();
         return plants;
     }
 
+
+    //Κώδικας που φορτώνει απο τα Plants απο το Array Στον Recycler
     public void loadPlants(){ //////////////////////////////////////////////////////////////////////
+
         plants = readPlants();
 
-        plantAdapter = new PlantAdapter(plants, this, new PlantAdapter.ItemClicked() {
+        plantAdapter = new PlantAdapter(plants,globalTemperature,this, new PlantAdapter.ItemClicked() {
             @Override
             public void onClick(int position, View view) {
                 int nPosition = plants.get(position).getId();
-                Toast.makeText(MainActivity.this, ""+nPosition, Toast.LENGTH_SHORT).show();
-                editPlant(nPosition, view );
+                Toast.makeText(MainActivity.this, "Loading Plants...."+nPosition, Toast.LENGTH_SHORT).show();
             }
         });
-        recyclerView.setAdapter(plantAdapter);
+        recyclerView.setAdapter(plantAdapter); //βάζει το Recycler ton adapter toy Plant
     }
 
-    private void editPlant(int plantId, View view){ ////////////////////////////////////////////////
-        PlantHandler plantHandler = new PlantHandler(this  );
 
-        Plant plant = plantHandler.readOnePlant(plantId);
-
-        Intent intent = new Intent(this, EditPlant.class);
-
-        intent.putExtra("title", plant.getTitle());
-        intent.putExtra("description", plant.getDescription());
-        intent.putExtra("id", plant.getId());
-
-        startActivityForResult(intent, 1); //για να δουμε αν πατήσαμε το back
-        startActivity(intent);
-    }
-
-    @Override
+    @Override //οταν επιστρεψουμε απο το PlantDetails Activity τότε φόρτωσε τα Plants παλι
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) { //////
         super.onActivityResult(requestCode, resultCode, data);
-        //loadPlants();
         if (requestCode == 1) { //δηλαδη επιστρέψαμε απο την δραστηρθότητα
             loadPlants();
         }
     }
 
 
+    //Κώδικας που βρίσκει τον καιρό για την πόλη sCity
+    private void getWeather(String sCity){
+        //Αντικείμενο του CALL
+        Call<WeatherData> myCall = weatherAPIcall.getWeatherData(sCity, WeatherServerInfo.API_KEY);
+        myCall.enqueue(new Callback<WeatherData>() {
+            @Override
+            public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
+                WeatherData weatherData = response.body();
+                String sTemp, sTempFeels, sHum;
+
+                Toast.makeText(MainActivity.this, "Weather is retrieved.", Toast.LENGTH_SHORT).show();
+
+                //Βρίσκω την θερμοκρασία και υγρασία και την βαζω σε μεταβλητές για να την περάσω στην φόρμα PlantDetails2
+                globalTemperature = (int) (weatherData.getWeatherDataMain().getGetTemperature() - 273.15); //μετατροπή σε C και σε ακέραιο
+                globalHumidity = (int) (weatherData.getWeatherDataMain().getGetHumidity() - 0);  //μετρατροπή σε ακέραιο
+
+                //Επίσης όπω τα παραπάνω αλλα τωρα τα κανω String για να τα εμφανίζω στο GUI (textview)
+                sTemp = "" + (weatherData.getWeatherDataMain().getGetTemperature() - 273.15);
+                sTemp = sTemp.substring(0, 2);
+                sTempFeels = "" +  (weatherData.getWeatherDataMain().getGetFeelsLike() - 273.15);
+                sTempFeels = sTempFeels.substring(0,2);
+                sHum = "" + weatherData.getWeatherDataMain().getGetHumidity();
+                sHum = sHum.substring(0,2);
+
+                //τα εμφανίζω.....
+                tvWeather.setText("Current Temperature: " + sTemp +  " C (Feels like: " + sTempFeels + " C) - Humidity: " + sHum +
+                        "% - City: " + sCity);
+            }
+
+            @Override //αν αποτυχει το CALL .... μηνυμα στον Χρήστη
+            public void onFailure(Call<WeatherData> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Fail getting Weather Data", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // GPS Code from website: https://www.geeksforgeeks.org/how-to-get-user-location-in-android/
+    // περισσότερα το Word doc της εργασίας .............
     @SuppressLint("MissingPermission")
     private void getLastLocation() {
         // check if permissions are given
@@ -194,6 +293,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             //Set Location Data to Text View
                             tvLatAndLon.setText("Lat: " + location.getLatitude() + " <> Long: " + location.getLongitude());
+                            Toast.makeText(MainActivity.this, "Found GPS location", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

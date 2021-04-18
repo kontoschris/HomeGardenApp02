@@ -1,3 +1,4 @@
+//Κλάση PLANT για την υλοποίηση των βασικών αντικειμένω της εφαρμογής
 package com.kontoschris.homegardenapp02;
 
 public class Plant {
@@ -9,7 +10,7 @@ public class Plant {
     byte[] image;
 
 
-
+    //propeeerties της κλασσης
     public Plant(String title, String description, int temperature, int humidity, byte[] image) {
         this.title = title;
         this.description = description;
@@ -18,6 +19,8 @@ public class Plant {
         this.image = image;
     }
 
+
+    //Λειτουργίες Getter & Setter
     public String getTitle() {
         return title;
     }

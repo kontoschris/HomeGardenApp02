@@ -16,7 +16,7 @@
         android:textColor="#ffffff"
         android:textStyle="bold"
         android:background="#FF8789"
-        android:text="Edit Plant"
+        android:text="Plant Details"
         android:textAlignment="center"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
